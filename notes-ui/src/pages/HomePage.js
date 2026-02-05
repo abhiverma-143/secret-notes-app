@@ -19,7 +19,7 @@ function HomePage() {
           padding: 20px;
         }
         
-        /* Navbar Simple */
+        /* Navbar Simple (Sirf Logo) */
         .nav {
           position: absolute;
           top: 0;
@@ -27,13 +27,23 @@ function HomePage() {
           width: 100%;
           padding: 20px 40px;
           display: flex;
-          justify-content: space-between;
           align-items: center;
+          /* Justify Content 'Start' kar diya taaki logo left mein rahe */
+          justify-content: flex-start; 
           box-sizing: border-box;
         }
-        .logo { font-size: 24px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
-        .nav-links a { color: white; text-decoration: none; margin-left: 20px; font-weight: 500; transition: 0.3s; }
-        .nav-links a:hover { color: #2ed573; }
+        
+        .logo { 
+            font-size: 24px; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            background: rgba(255, 255, 255, 0.1); /* Halka background taaki logo highlight ho */
+            padding: 10px 20px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+        }
 
         /* Hero Section */
         .hero-card {
@@ -76,14 +86,12 @@ function HomePage() {
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.3); transform: translateY(-3px); }
 
-        /* Floating Animation */
         @keyframes float {
           0% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
           100% { transform: translateY(0px); }
         }
 
-        /* Mobile Responsive */
         @media (max-width: 600px) {
           h1 { font-size: 32px; }
           .nav { padding: 20px; }
@@ -91,16 +99,20 @@ function HomePage() {
         }
       `}</style>
 
-      {/* Navigation Bar */}
+      {/* Navigation Bar - Sirf Logo Rakha Hai */}
       <nav className="nav">
         <div className="logo">
-          <img src="https://img.icons8.com/fluency/48/document-lock.png" alt="logo" width="30"/>
+          {/* Agar Image fail hui to Emoji dikhega */}
+          <img 
+            src="https://img.icons8.com/fluency/96/document-lock.png" 
+            alt="🔒" 
+            width="40"
+            onError={(e) => {e.target.style.display='none'}} // Agar image na load ho to chhupa do
+          />
           SecretNotes
         </div>
-        <div className="nav-links">
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
-        </div>
+        
+        {/* Yahan se Login/Register links hata diye gaye hain */}
       </nav>
 
       {/* Main Content */}
