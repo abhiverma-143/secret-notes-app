@@ -48,7 +48,7 @@ function RegisterPage() {
 
     try {
       // Backend request
-      await axios.post('http://localhost:8081/auth/register', {
+      await axios.post('https://secret-notes-app-pdmd.onrender.com/auth/register', {
         username,
         email, 
         mobile,

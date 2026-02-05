@@ -90,7 +90,7 @@ function DashboardPage() {
 
     try {
       // Backend Endpoint we just created
-      const response = await axios.get('http://localhost:8081/auth/me', {
+      const response = await axios.get('https://secret-notes-app-pdmd.onrender.com/auth/me', {
         headers: { 'Authorization': token }
       });
       
@@ -122,7 +122,7 @@ function DashboardPage() {
     const token = sessionStorage.getItem('auth_token');
     if (!token) { navigate('/'); return; }
     try {
-      const response = await axios.get('http://localhost:8081/notes', {
+      const response = await axios.get('https://secret-notes-app-pdmd.onrender.com/notes', {
         headers: { 'Authorization': token }
       });
       setNotes(response.data);
@@ -167,7 +167,7 @@ function DashboardPage() {
     }
 
     try {
-      await axios.post('http://localhost:8081/notes', formData, { 
+      await axios.post('https://secret-notes-app-pdmd.onrender.com/notes', formData, { 
         headers: { 'Authorization': token, 'Content-Type': 'multipart/form-data' } 
       });
       setNewTitle(''); setNewNote('');
@@ -181,7 +181,7 @@ function DashboardPage() {
     e.stopPropagation();
     const token = sessionStorage.getItem('auth_token');
     try {
-      await axios.delete(`http://localhost:8081/notes/${id}`, {
+      await axios.delete(`https://secret-notes-app-pdmd.onrender.com/notes/${id}`, {
         headers: { 'Authorization': token }
       });
       setNotes(notes.filter(note => note.id !== id));

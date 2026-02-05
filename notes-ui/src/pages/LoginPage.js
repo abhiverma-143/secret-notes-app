@@ -47,7 +47,7 @@ function LoginPage() {
     e.preventDefault();
     try {
       // 🔥 Sending 'email' instead of 'username'
-      const response = await axios.post('http://localhost:8081/auth/login', { 
+      const response = await axios.post('https://secret-notes-app-pdmd.onrender.com/auth/login', { 
         email, 
         password 
       });
