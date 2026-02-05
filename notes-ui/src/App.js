@@ -1,33 +1,21 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
-
-// 🔥 SECURITY GUARD (Private Route)
-// Yeh check karega ki Token hai ya nahi. Agar nahi hai, to Login page par bhej dega.
-const PrivateRoute = ({ children }) => {
-  const token = sessionStorage.getItem('auth_token'); // Check Session Storage
-  return token ? children : <Navigate to="/" replace />;
-};
+import HomePage from './pages/HomePage'; // ✅ Naya Import
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        {/* ✅ Pehle '/' Login tha, ab HomePage kar diya */}
+        <Route path="/" element={<HomePage />} />
         
-        {/* 🔥 Protected Dashboard Route */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <PrivateRoute>
-              <DashboardPage />
-            </PrivateRoute>
-          } 
-        />
+        {/* ✅ Login ke liye alag rasta banaya */}
+        <Route path="/login" element={<LoginPage />} />
+        
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
     </Router>
   );
