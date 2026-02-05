@@ -23,6 +23,7 @@ function RegisterPage() {
   });
   
   const [error, setError] = useState('');
+  const [message, setMessage] = useState(''); // ✅ Success message state
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -55,12 +56,19 @@ function RegisterPage() {
         password
       });
       
-      alert("✅ Registration Successful! Please Login.");
-      navigate('/');
+      // ✅ SUCCESS LOGIC CHANGED HERE
+      // Alert hata diya aur message set kiya
+      setMessage("✅ Registration Successful! Redirecting...");
+      setError(""); // Purane errors saaf karo
+
+      // 2 Second wait karke Login page par bhejo
+      setTimeout(() => {
+        navigate('/'); 
+      }, 2000);
+
     } catch (err) {
-      // 🔥 ASLI ERROR YAHAN SE DIKHEGA
+      // 🔥 ERROR HANDLING
       if (err.response && err.response.data) {
-          // Agar Backend ne koi message bheja hai (jaise "Username taken")
           setError("❌ " + err.response.data); 
       } else {
           setError("❌ Registration Failed! Check console.");
@@ -86,6 +94,7 @@ function RegisterPage() {
         .submit-btn { width: 100%; padding: 12px; border-radius: 30px; border: none; background: #2ed573; color: white; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .submit-btn:hover { background: #26af61; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4); }
         .error-msg { color: #ff6b6b; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; }
+        .success-msg { color: #2ed573; background: rgba(46, 213, 115, 0.2); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; font-weight: bold; border: 1px solid #2ed573; }
         .login-link { margin-top: 20px; font-size: 14px; opacity: 0.9; }
         .login-link a { color: #fff; font-weight: bold; text-decoration: none; border-bottom: 1px dashed white; }
         .login-link a:hover { color: #2ed573; border-color: #2ed573; }
@@ -96,6 +105,9 @@ function RegisterPage() {
         <h2>🚀 Create Account</h2>
         <p className="sub-text">Join us to keep your secrets safe!</p>
         
+        {/* ✅ Success Message Display */}
+        {message && <div className="success-msg">{message}</div>}
+
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleRegister}>
@@ -104,7 +116,6 @@ function RegisterPage() {
             <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required />
           </div>
 
-          {/* 🔥 Added Email Field */}
           <div className="input-group">
             <span className="input-icon"><Icons.Mail /></span>
             <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} required />
