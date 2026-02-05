@@ -5,9 +5,20 @@ function HomePage() {
   return (
     <div className="home-container">
       <style>{`
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
+        /* ✅ GLOBAL FIX: Padding ko height ke andar count karo */
+        * { box-sizing: border-box; }
+
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; /* ✅ Scrollbar ko zabardasti hatao */
+        }
+
         .home-container {
-          min-height: 100vh;
+          height: 100vh; /* min-height ki jagah fixed height */
+          width: 100vw;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
           font-family: 'Segoe UI', sans-serif;
@@ -17,9 +28,10 @@ function HomePage() {
           justify-content: center;
           text-align: center;
           padding: 20px;
+          position: relative; /* Relative taaki absolute nav iske andar rahe */
         }
         
-        /* Navbar Simple (Sirf Logo) */
+        /* Navbar Simple */
         .nav {
           position: absolute;
           top: 0;
@@ -28,9 +40,8 @@ function HomePage() {
           padding: 20px 40px;
           display: flex;
           align-items: center;
-          /* Justify Content 'Start' kar diya taaki logo left mein rahe */
           justify-content: flex-start; 
-          box-sizing: border-box;
+          z-index: 10; /* Hero card ke upar rahe */
         }
         
         .logo { 
@@ -39,7 +50,7 @@ function HomePage() {
             display: flex; 
             align-items: center; 
             gap: 15px; 
-            background: rgba(255, 255, 255, 0.1); /* Halka background taaki logo highlight ho */
+            background: rgba(255, 255, 255, 0.1);
             padding: 10px 20px;
             border-radius: 30px;
             backdrop-filter: blur(5px);
@@ -53,6 +64,7 @@ function HomePage() {
           padding: 60px 40px;
           border-radius: 20px;
           max-width: 800px;
+          width: 90%; /* Mobile par zyada chaudai na ho */
           box-shadow: 0 10px 30px rgba(0,0,0,0.2);
           animation: float 6s ease-in-out infinite;
         }
@@ -99,20 +111,17 @@ function HomePage() {
         }
       `}</style>
 
-      {/* Navigation Bar - Sirf Logo Rakha Hai */}
+      {/* Navigation Bar */}
       <nav className="nav">
         <div className="logo">
-          {/* Agar Image fail hui to Emoji dikhega */}
           <img 
             src="https://img.icons8.com/fluency/96/document-lock.png" 
             alt="🔒" 
             width="40"
-            onError={(e) => {e.target.style.display='none'}} // Agar image na load ho to chhupa do
+            onError={(e) => {e.target.style.display='none'}} 
           />
           SecretNotes
         </div>
-        
-        {/* Yahan se Login/Register links hata diye gaye hain */}
       </nav>
 
       {/* Main Content */}
