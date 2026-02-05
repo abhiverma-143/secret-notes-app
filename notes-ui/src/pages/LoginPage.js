@@ -2,20 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
-// 🖌️ Icons & Logo (Embedded SVG - Never Fails)
+// 🖌️ Icons (SVG Code)
 const Icons = {
-  // ✅ New Custom Logo: Document with Lock
-  AppLogo: () => (
-    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="rgba(255,255,255,0.1)"></path>
-      <polyline points="14 2 14 8 20 8"></polyline>
-      <rect x="10" y="12" width="8" height="6" rx="1" fill="#2ed573" stroke="#2ed573"></rect>
-      <path d="M11 12V10a3 3 0 0 1 6 0v2" stroke="#2ed573"></path>
-    </svg>
-  ),
   Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>,
   Lock: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>,
-  Eye: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>,
+  Eye: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>,
   EyeOff: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>,
   ArrowRight: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
 };
@@ -40,8 +31,11 @@ function LoginPage() {
         password
       });
 
+      // Token aur Username save karo
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('username', response.data.username);
+
+      // Dashboard par bhejo
       navigate('/dashboard');
 
     } catch (err) {
@@ -80,15 +74,10 @@ function LoginPage() {
             animation: fadeIn 0.8s ease; 
         }
 
-        /* ✅ Updated Logo Style */
-        .logo-container {
-            margin-bottom: 20px;
-            display: inline-block;
-            padding: 15px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(46, 213, 115, 0.3);
-            border: 1px solid rgba(255,255,255,0.2);
+        .logo-img {
+            width: 60px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
         }
 
         h2 { margin: 0 0 10px; font-size: 28px; font-weight: 700; letter-spacing: 0.5px; }
@@ -106,7 +95,7 @@ function LoginPage() {
 
         input { 
             width: 100%; 
-            padding: 14px 15px 14px 45px; 
+            padding: 14px 15px 14px 45px; /* Thoda bada padding mobile ke liye */
             border-radius: 30px; 
             border: 2px solid transparent; 
             outline: none; 
@@ -165,10 +154,12 @@ function LoginPage() {
       `}</style>
 
       <div className="glass-card">
-        {/* ✅ Logo is now embedded code, not an image link */}
-        <div className="logo-container">
-            <Icons.AppLogo />
-        </div>
+        {/* ✅ Logo Added */}
+        <img 
+            src="https://img.icons8.com/fluency/96/document-lock.png" 
+            alt="Logo" 
+            className="logo-img"
+        />
 
         <h2>Welcome Back</h2>
         <p className="sub-text">Enter your details to access your secret notes.</p>
