@@ -23,7 +23,7 @@ function RegisterPage() {
   });
   
   const [error, setError] = useState('');
-  const [message, setMessage] = useState(''); // ✅ Success message state
+  const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -36,7 +36,6 @@ function RegisterPage() {
     e.preventDefault();
     const { username, mobile, email, password, confirmPassword } = formData;
 
-    // Validation
     if (!username || !mobile || !email || !password || !confirmPassword) {
       setError("⚠️ All fields are required!");
       return;
@@ -48,26 +47,20 @@ function RegisterPage() {
     }
 
     try {
-      // Backend request
-      await axios.post('https://secret-notes-app-pdmd.onrender.com/auth/register', {
+      await axios.post('https://secret-notes-backend.onrender.com/auth/register', {
         username,
         email, 
         mobile,
         password
       });
       
-      // ✅ SUCCESS LOGIC CHANGED HERE
-      // Alert hata diya aur message set kiya
       setMessage("✅ Registration Successful! Redirecting...");
-      setError(""); // Purane errors saaf karo
-
-      // 2 Second wait karke Login page par bhejo
+      setError("");
       setTimeout(() => {
         navigate('/'); 
       }, 2000);
 
     } catch (err) {
-      // 🔥 ERROR HANDLING
       if (err.response && err.response.data) {
           setError("❌ " + err.response.data); 
       } else {
@@ -80,9 +73,42 @@ function RegisterPage() {
   return (
     <div className="register-container">
       <style>{`
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
-        .register-container { min-height: 100vh; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
-        .glass-card { background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); backdrop-filter: blur(12px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.18); padding: 40px; width: 100%; max-width: 400px; text-align: center; color: white; animation: fadeIn 0.8s ease; }
+        /* ✅ Fix: Box-sizing se padding width/height ke andar aa jati hai */
+        * { box-sizing: border-box; }
+        
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow-x: hidden; /* Sirf horizontal scroll band karein */
+        }
+
+        .register-container { 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            padding: 20px; 
+            width: 100%; /* Ensure container takes full width */
+        }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.15); 
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); 
+            backdrop-filter: blur(12px); 
+            border-radius: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.18); 
+            padding: 40px; 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+            color: white; 
+            animation: fadeIn 0.8s ease; 
+        }
+
         h2 { margin-bottom: 10px; font-size: 28px; font-weight: 700; }
         .sub-text { font-size: 14px; opacity: 0.8; margin-bottom: 30px; }
         .input-group { position: relative; margin-bottom: 20px; text-align: left; }
@@ -105,9 +131,7 @@ function RegisterPage() {
         <h2>🚀 Create Account</h2>
         <p className="sub-text">Join us to keep your secrets safe!</p>
         
-        {/* ✅ Success Message Display */}
         {message && <div className="success-msg">{message}</div>}
-
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleRegister}>
