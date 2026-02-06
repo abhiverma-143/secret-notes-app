@@ -2,19 +2,24 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
-import HomePage from './pages/HomePage'; // ✅ Naya Import
+import HomePage from './pages/HomePage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage'; // ✅ Import Add Kiya
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* ✅ Pehle '/' Login tha, ab HomePage kar diya */}
+        {/* ✅ Home Page */}
         <Route path="/" element={<HomePage />} />
         
-        {/* ✅ Login ke liye alag rasta banaya */}
+        {/* ✅ Auth Routes */}
         <Route path="/login" element={<LoginPage />} />
-        
         <Route path="/register" element={<RegisterPage />} />
+        
+        {/* ✅ Forgot Password Route (Naya Add Kiya) */}
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        
+        {/* ✅ Private Route */}
         <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
     </Router>

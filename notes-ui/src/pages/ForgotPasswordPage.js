@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+// 🖌️ Icons
 const Icons = {
   Mail: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>,
   Lock: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>,
@@ -16,21 +17,26 @@ function ForgotPasswordPage() {
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const navigate = useNavigate();
+
+  // 🔥 Backend URL (Render Wala)
+  const BACKEND_URL = "https://secret-notes-backend.onrender.com";
 
   // Step 1: Send OTP to Email
   const handleSendOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccessMsg('');
     
     try {
-      // Backend Endpoint: /auth/forgot-password (Email bhejega)
-      await axios.post('http://localhost:8081/auth/forgot-password', { email });
-      setStep(2); // Go to next step
-      alert(`✅ OTP Code sent to ${email}`);
+      // ✅ Corrected URL
+      await axios.post(`${BACKEND_URL}/auth/forgot-password`, { email });
+      setStep(2); 
+      setSuccessMsg(`✅ OTP code sent to ${email}`);
     } catch (err) {
-      setError("❌ User not found or Email failed to send.");
+      setError("❌ User not found or failed to send email.");
     } finally {
       setLoading(false);
     }
@@ -41,16 +47,17 @@ function ForgotPasswordPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccessMsg('');
 
     try {
-      // Backend Endpoint: /auth/reset-password (OTP + New Password Verify karega)
-      await axios.post('http://localhost:8081/auth/reset-password', { 
+      // ✅ Corrected URL
+      await axios.post(`${BACKEND_URL}/auth/reset-password`, { 
         email, 
         otp, 
         newPassword 
       });
       
-      alert("🎉 Password Reset Successful! Login now.");
+      alert("🎉 Password Reset Successful! Please Login.");
       navigate('/'); // Redirect to Login
     } catch (err) {
       setError("❌ Invalid OTP Code or Error.");
@@ -63,21 +70,29 @@ function ForgotPasswordPage() {
     <div className="fp-container">
       {/* CSS Styles */}
       <style>{`
+        * { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
         .fp-container { min-height: 100vh; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); padding: 20px; }
-        .glass-card { background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(12px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.18); padding: 40px; width: 100%; max-width: 400px; text-align: center; color: white; }
+        .glass-card { background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(12px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.18); padding: 40px; width: 100%; max-width: 400px; text-align: center; color: white; animation: fadeIn 0.5s ease; }
         h2 { margin-bottom: 10px; font-size: 26px; }
         .sub-text { font-size: 14px; opacity: 0.8; margin-bottom: 25px; }
         .input-group { position: relative; margin-bottom: 20px; text-align: left; }
         .input-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); opacity: 0.8; color: white; }
-        input { width: 100%; padding: 12px 15px 12px 45px; border-radius: 30px; border: none; outline: none; background: rgba(255, 255, 255, 0.2); color: white; font-size: 16px; box-sizing: border-box; transition: 0.3s; }
+        input { width: 100%; padding: 12px 15px 12px 45px; border-radius: 30px; border: none; outline: none; background: rgba(255, 255, 255, 0.2); color: white; font-size: 16px; transition: 0.3s; }
         input::placeholder { color: rgba(255, 255, 255, 0.6); }
-        input:focus { background: rgba(255, 255, 255, 0.3); }
+        input:focus { background: rgba(255, 255, 255, 0.3); box-shadow: 0 0 10px rgba(255,255,255,0.1); }
+        
         .submit-btn { width: 100%; padding: 12px; border-radius: 30px; border: none; background: #f1c40f; color: #2c3e50; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         .submit-btn:hover { background: #f39c12; transform: translateY(-2px); }
-        .error-msg { color: #ff6b6b; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .error-msg { color: #ff6b6b; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; border: 1px solid #ff6b6b; }
+        .success-msg { color: #2ecc71; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; border: 1px solid #2ecc71; }
+        
         .back-link { margin-top: 20px; display: block; color: white; text-decoration: none; opacity: 0.8; }
         .back-link:hover { text-decoration: underline; opacity: 1; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
 
       <div className="glass-card">
@@ -103,6 +118,7 @@ function ForgotPasswordPage() {
             <h2>🔒 Reset Password</h2>
             <p className="sub-text">Check your email for the code!</p>
 
+            {successMsg && <div className="success-msg">{successMsg}</div>}
             {error && <div className="error-msg">{error}</div>}
 
             <form onSubmit={handleResetPassword}>

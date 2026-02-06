@@ -95,7 +95,7 @@ function LoginPage() {
 
         input { 
             width: 100%; 
-            padding: 14px 15px 14px 45px; /* Thoda bada padding mobile ke liye */
+            padding: 14px 15px 14px 45px; 
             border-radius: 30px; 
             border: 2px solid transparent; 
             outline: none; 
@@ -111,6 +111,23 @@ function LoginPage() {
             border-color: rgba(255,255,255,0.3);
         }
 
+        /* 🔥 New CSS for Forgot Password */
+        .forgot-pass-container {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        .forgot-pass-link {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .forgot-pass-link:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
         .submit-btn { 
             width: 100%; 
             padding: 14px; 
@@ -122,7 +139,6 @@ function LoginPage() {
             font-weight: bold; 
             cursor: pointer; 
             transition: 0.3s; 
-            margin-top: 10px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
@@ -154,7 +170,6 @@ function LoginPage() {
       `}</style>
 
       <div className="glass-card">
-        {/* ✅ Logo Added */}
         <img 
             src="https://img.icons8.com/fluency/96/document-lock.png" 
             alt="Logo" 
@@ -190,6 +205,13 @@ function LoginPage() {
             <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
               {showPassword ? <Icons.EyeOff /> : <Icons.Eye />}
             </span>
+          </div>
+
+          {/* 🔥 Forgot Password Option Added Here */}
+          <div className="forgot-pass-container">
+            <Link to="/forgot-password" className="forgot-pass-link">
+              Forgot Password?
+            </Link>
           </div>
 
           <button type="submit" className="submit-btn">
