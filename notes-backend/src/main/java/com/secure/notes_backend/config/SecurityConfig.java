@@ -15,6 +15,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -29,18 +30,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // React ke liye disable kiya
-            .cors(Customizer.withDefaults()) // Frontend connection allow kiya
+            .csrf(csrf -> csrf.disable()) // React ke liye disable
+            .cors(Customizer.withDefaults()) // Niche wala CorsFilter use karega
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll() // Login/Register sabke liye open
-                .anyRequest().authenticated() // Baaki sabke liye login zaroori
+                .requestMatchers("/error").permitAll() // Error page bhi open rakho (404 fix ke liye)
+                .anyRequest().authenticated() // Baaki sab secure
             )
-            .httpBasic(Customizer.withDefaults()); // Basic Auth use karo
+            .httpBasic(Customizer.withDefaults()); // Basic Auth
 
         return http.build();
     }
 
-    // 🔥 Password Encryption Setup
+    // 🔥 Password Encryption
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -55,15 +57,29 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    // 🔥 CORS (Frontend React ko allow karne ke liye)
+    // 🔥 Authentication Manager (Agar future mein zaroorat pade)
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    // 🔥 GLOBAL CORS CONFIGURATION (Sabse Important Fix 🛠️)
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
+        
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("https://secret-notes-frontend.onrender.com")); // React URL
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // 👇 Yahan Localhost AUR Render dono allow kiye hain
+        config.setAllowedOrigins(Arrays.asList(
+            "http://localhost:3000",                   // Local Testing ke liye
+            "https://secret-notes-frontend.onrender.com" // Live Website ke liye
+        ));
+        
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
