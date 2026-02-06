@@ -12,8 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,25 +30,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // React ke liye disable
-            .cors(Customizer.withDefaults()) // Niche wala CorsFilter use karega
+            .csrf(csrf -> csrf.disable()) 
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 🔥 Ye Change Kiya Hai
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll() // Login/Register sabke liye open
-                .requestMatchers("/error").permitAll() // Error page bhi open rakho (404 fix ke liye)
-                .anyRequest().authenticated() // Baaki sab secure
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/error").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // 🔥 Preflight allow kiya
+                .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults()); // Basic Auth
+            .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
 
-    // 🔥 Password Encryption
+    // 🔥 PASSWORD ENCODER
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 🔥 User Database Connection
+    // 🔥 AUTH PROVIDER
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -57,30 +58,28 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    // 🔥 Authentication Manager (Agar future mein zaroorat pade)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // 🔥 GLOBAL CORS CONFIGURATION (Sabse Important Fix 🛠️)
+    // 🔥 CORS CONFIGURATION SOURCE (Best Practice)
     @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
         
-        config.setAllowCredentials(true);
-        
-        // 👇 Yahan Localhost AUR Render dono allow kiye hain
-        config.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",                   // Local Testing ke liye
-            "https://secret-notes-frontend.onrender.com" // Live Website ke liye
+        // 👇 Yahan dhyan dein: Koi trailing slash '/' nahi hona chahiye URLs ke end mein
+        configuration.setAllowedOrigins(Arrays.asList(
+            "https://secret-notes-frontend.onrender.com", 
+            "http://localhost:3000"
         ));
         
-        config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
+        configuration.setAllowCredentials(true);
         
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
