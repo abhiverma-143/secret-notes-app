@@ -17,7 +17,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/notes")
-@CrossOrigin(origins = "http://localhost:3000")
+// Ab localhost AUR Render wala frontend dono allow honge
+@CrossOrigin(origins = { "http://localhost:3000", "https://secret-notes-frontend.onrender.com" })
 public class NoteController {
 
     @Autowired

@@ -9,7 +9,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-// 🔥 Ye Imports Missing The 👇
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+// Ab localhost AUR Render wala frontend dono allow honge
+@CrossOrigin(origins = { "http://localhost:3000", "https://secret-notes-frontend.onrender.com" })
 public class AuthController {
 
     @Autowired
@@ -42,29 +42,41 @@ public class AuthController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        
+
         return ResponseEntity.ok("✅ User Registered Successfully!");
     }
 
-    // 👉 2. LOGIN USER
+    // 👉 2. LOGIN USER (Corrected)
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginData) {
-        String email = loginData.get("email"); // 🔥 Username ki jagah Email
+        // Null check add kiya taaki crash na ho
+        if (!loginData.containsKey("email") || !loginData.containsKey("password")) {
+            return ResponseEntity.badRequest().body("Email and Password are required!");
+        }
+
+        String email = loginData.get("email").trim();
         String password = loginData.get("password");
 
-        // 🔥 Find user by Email now
         User user = userRepository.findByEmail(email);
 
-        if (user != null) {
-            // Password Check
-            if (passwordEncoder.matches(password, user.getPassword())) {
-                // Token Generate (Username abhi bhi token me use kar sakte hain identity ke liye)
-                String token = "Basic " + java.util.Base64.getEncoder().encodeToString((user.getUsername() + ":" + password).getBytes());
-                return ResponseEntity.ok(token);
-            }
+        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+            
+            // ✅ Token EMAIL se bana rahe hain (Frontend ko yahi bhejna hoga)
+            String token = "Basic " + java.util.Base64.getEncoder()
+                    .encodeToString((user.getEmail() + ":" + password).getBytes());
+
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("username", user.getUsername());
+            response.put("email", user.getEmail()); // Email bhi bhej diya safe side
+            response.put("message", "Login Successful!");
+
+            return ResponseEntity.ok(response);
         }
+
         return ResponseEntity.status(401).body("Invalid Email or Password!");
     }
+
     // 👉 3. FORGOT PASSWORD
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
@@ -108,30 +120,36 @@ public class AuthController {
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
-        user.setOtp(null);
+        user.setOtp(null); // OTP use hone ke baad delete karein
         userRepository.save(user);
 
         return ResponseEntity.ok("Password Reset Successful!");
     }
 
-    // 👉 5. GET CURRENT USER DETAILS (Profile Show karne ke liye)
+    // 👉 5. GET CURRENT USER DETAILS (🔥 FIXED THIS PART)
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
 
-        Optional<User> userOpt = userRepository.findByUsername(principal.getName());
+        // ⚠️ CRITICAL FIX:
+        // Kyunki Token 'Email' se bana hai, principal.getName() humein EMAIL dega.
+        // Isliye humein 'findByEmail' use karna padega, na ki 'findByUsername'.
+        
+        String emailFromToken = principal.getName();
+        User user = userRepository.findByEmail(emailFromToken);
 
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            Map<String, String> userData = new HashMap<>(); // ✅ Ab ye error nahi dega
+        if (user != null) {
+            Map<String, String> userData = new HashMap<>();
             userData.put("username", user.getUsername());
             userData.put("email", user.getEmail());
             userData.put("mobile", user.getMobile());
             
             return ResponseEntity.ok(userData);
         }
+        
         return ResponseEntity.badRequest().body("User not found");
     }
+
 }
