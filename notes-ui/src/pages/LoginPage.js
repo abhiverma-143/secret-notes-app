@@ -171,8 +171,8 @@ function LoginPage() {
       <div className="glass-card">
        <img 
     src="https://cdn-icons-png.flaticon.com/512/6195/6195699.png" 
-    alt="Lock" 
-    className="lock-img"
+    alt="Logo" 
+    className="logo-img"
 />
 
         <h2>Welcome Back</h2>
