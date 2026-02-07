@@ -25,7 +25,7 @@ function LoginPage() {
     }
 
     try {
-      const response = await axios.post('https://secret-notes-backend.onrender.com/auth/login', {
+      const response = await axios.post('https://secret-notes-app-pdmd.onrender.com/auth/login', {
         email,
         password
       });
