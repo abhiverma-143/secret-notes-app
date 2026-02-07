@@ -58,7 +58,7 @@ public class AuthController {
         User user = userRepository.findByEmail(email);
 
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            
+
             // ✅ Token EMAIL se bana rahe hain (Frontend ko yahi bhejna hoga)
             String token = "Basic " + java.util.Base64.getEncoder()
                     .encodeToString((user.getEmail() + ":" + password).getBytes());
@@ -134,7 +134,7 @@ public class AuthController {
         // ⚠️ CRITICAL FIX:
         // Kyunki Token 'Email' se bana hai, principal.getName() humein EMAIL dega.
         // Isliye humein 'findByEmail' use karna padega, na ki 'findByUsername'.
-        
+
         String emailFromToken = principal.getName();
         User user = userRepository.findByEmail(emailFromToken);
 
@@ -143,11 +143,18 @@ public class AuthController {
             userData.put("username", user.getUsername());
             userData.put("email", user.getEmail());
             userData.put("mobile", user.getMobile());
-            
+
             return ResponseEntity.ok(userData);
         }
-        
+
         return ResponseEntity.badRequest().body("User not found");
+    }
+
+    // AuthController class ke andar, sabse upar ye add karein:
+
+    @GetMapping("/") // 👈 Ye Root URL handle karega
+    public String home() {
+        return "Backend is Running Successfully! 🚀";
     }
 
 }
