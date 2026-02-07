@@ -45,35 +45,47 @@ public class AuthController {
     }
 
     // 👉 2. LOGIN USER (Corrected)
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginData) {
-        // Null check add kiya taaki crash na ho
-        if (!loginData.containsKey("email") || !loginData.containsKey("password")) {
-            return ResponseEntity.badRequest().body("Email and Password are required!");
-        }
-
-        String email = loginData.get("email").trim();
-        String password = loginData.get("password");
-
-        User user = userRepository.findByEmail(email);
-
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-
-            // ✅ Token EMAIL se bana rahe hain (Frontend ko yahi bhejna hoga)
-            String token = "Basic " + java.util.Base64.getEncoder()
-                    .encodeToString((user.getEmail() + ":" + password).getBytes());
-
-            Map<String, String> response = new HashMap<>();
-            response.put("token", token);
-            response.put("username", user.getUsername());
-            response.put("email", user.getEmail()); // Email bhi bhej diya safe side
-            response.put("message", "Login Successful!");
-
-            return ResponseEntity.ok(response);
-        }
-
-        return ResponseEntity.status(401).body("Invalid Email or Password!");
+   @PostMapping("/login")
+public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginData) {
+    if (!loginData.containsKey("email") || !loginData.containsKey("password")) {
+        return ResponseEntity.badRequest().body("Email and Password are required!");
     }
+
+    String email = loginData.get("email").trim();
+    String password = loginData.get("password");
+
+    System.out.println("Login Attempt for: " + email); // 🔍 Log 1
+
+    User user = userRepository.findByEmail(email);
+
+    if (user == null) {
+        System.out.println("❌ User not found in Database!"); // 🔍 Log 2
+        return ResponseEntity.status(401).body("User not found!");
+    }
+
+    System.out.println("✅ User Found: " + user.getEmail());
+    System.out.println("DB Password (Hash): " + user.getPassword()); // 🔍 Log 3
+    System.out.println("Entered Password: " + password);
+
+    boolean isMatch = passwordEncoder.matches(password, user.getPassword());
+    System.out.println("🔑 Password Match Result: " + isMatch); // 🔍 Log 4
+
+    if (isMatch) {
+        // ... (Token generation code same rahega) ...
+        String token = "Basic " + java.util.Base64.getEncoder()
+                .encodeToString((user.getEmail() + ":" + password).getBytes());
+
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        response.put("email", user.getEmail());
+        response.put("message", "Login Successful!");
+
+        return ResponseEntity.ok(response);
+    }
+
+    System.out.println("❌ Password Mismatch!"); // 🔍 Log 5
+    return ResponseEntity.status(401).body("Invalid Email or Password!");
+}
 
     // 👉 3. FORGOT PASSWORD
     @PostMapping("/forgot-password")
