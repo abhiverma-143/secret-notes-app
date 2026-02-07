@@ -3,7 +3,7 @@ package com.secure.notes_backend.config;
 import com.secure.notes_backend.services.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // ✅ Zaroori Import
+import org.springframework.http.HttpMethod; 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -17,7 +17,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -28,39 +27,45 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-    // 🔥 1. CORS Filter (Ye sabse important part hai fix ke liye)
+    // 🔥 1. CORS CONFIGURATION (Frontend connect karne ke liye)
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
-        // 👇 Apne Frontend ke dono URLs allow karein
+        // 👇 Sirf Secret Notes Frontend aur Localhost ko allow kiya
         config.setAllowedOrigins(Arrays.asList(
             "https://secret-notes-frontend.onrender.com", 
             "http://localhost:3000"
         ));
         
-        // 👇 Ye headers aur methods allow karna zaroori hai
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control", "X-Requested-With"));
         config.setAllowCredentials(true);
-        config.setMaxAge(3600L); // 1 hour tak settings yaad rakhega
+        config.setMaxAge(3600L);
         
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
 
+    // 🔥 2. SECURITY RULES
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) 
-            .cors(Customizer.withDefaults()) // 🔥 Upar wale filter ko use karega
+            .cors(Customizer.withDefaults()) 
             .authorizeHttpRequests(auth -> auth
-                // ✅ OPTIONS request ko allow karna hi padega (Preflight Fix)
+                // ✅ Preflight Fix (CORS Error hatane ke liye)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                
+                // ✅ Login aur Register Public hai
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/error").permitAll() // 404/500 errors ko dikhane ke liye
-                .requestMatchers("/").permitAll()      // Health check ke liye
+                
+                // ✅ Root URL (Health Check ke liye "Whitelabel Error" hatayega)
+                .requestMatchers("/").permitAll()
+                .requestMatchers("/error").permitAll()
+                
+                // 🔒 Baaki saare Notes protected rahenge
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
@@ -68,7 +73,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ... Baaki code waisa hi rahega (PasswordEncoder, AuthManager etc.) ...
+    // 🔥 3. AUTHENTICATION SETUP (Login logic)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
