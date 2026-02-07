@@ -3,6 +3,7 @@ package com.secure.notes_backend.config;
 import com.secure.notes_backend.services.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod; // ✅ Import Zaroori Hai
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -12,8 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,15 +28,39 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
+    // 🔥 1. CORS Filter Bean (Sabse Powerful Tareeka)
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        
+        // 👇 URLs dhyan se check karein (No trailing slash /)
+        config.setAllowedOrigins(Arrays.asList(
+            "https://secret-notes-frontend.onrender.com", 
+            "http://localhost:3000"
+        ));
+        
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control", "X-Requested-With"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L); // 1 hour cache
+        
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) 
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 🔥 Ye Change Kiya Hai
+            // 🔥 CORS ko upar wale Bean se connect kiya
+            .cors(Customizer.withDefaults()) 
             .authorizeHttpRequests(auth -> auth
+                // ✅ Sabse Pehle OPTIONS requests ko allow kiya (Preflight fix)
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/error").permitAll()
-                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // 🔥 Preflight allow kiya
+                .requestMatchers("/").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
@@ -43,13 +68,11 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 🔥 PASSWORD ENCODER
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 🔥 AUTH PROVIDER
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -61,25 +84,5 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-
-    // 🔥 CORS CONFIGURATION SOURCE (Best Practice)
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        
-        // 👇 Yahan dhyan dein: Koi trailing slash '/' nahi hona chahiye URLs ke end mein
-        configuration.setAllowedOrigins(Arrays.asList(
-            "https://secret-notes-frontend.onrender.com", 
-            "http://localhost:3000"
-        ));
-        
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
-        configuration.setAllowCredentials(true);
-        
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }
