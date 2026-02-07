@@ -3,7 +3,7 @@ package com.secure.notes_backend.config;
 import com.secure.notes_backend.services.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // ✅ Import Zaroori Hai
+import org.springframework.http.HttpMethod; // ✅ Zaroori Import
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -28,22 +28,23 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-    // 🔥 1. CORS Filter Bean (Sabse Powerful Tareeka)
+    // 🔥 1. CORS Filter (Ye sabse important part hai fix ke liye)
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
-        // 👇 URLs dhyan se check karein (No trailing slash /)
+        // 👇 Apne Frontend ke dono URLs allow karein
         config.setAllowedOrigins(Arrays.asList(
             "https://secret-notes-frontend.onrender.com", 
             "http://localhost:3000"
         ));
         
+        // 👇 Ye headers aur methods allow karna zaroori hai
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control", "X-Requested-With"));
         config.setAllowCredentials(true);
-        config.setMaxAge(3600L); // 1 hour cache
+        config.setMaxAge(3600L); // 1 hour tak settings yaad rakhega
         
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
@@ -53,14 +54,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) 
-            // 🔥 CORS ko upar wale Bean se connect kiya
-            .cors(Customizer.withDefaults()) 
+            .cors(Customizer.withDefaults()) // 🔥 Upar wale filter ko use karega
             .authorizeHttpRequests(auth -> auth
-                // ✅ Sabse Pehle OPTIONS requests ko allow kiya (Preflight fix)
+                // ✅ OPTIONS request ko allow karna hi padega (Preflight Fix)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/error").permitAll()
-                .requestMatchers("/").permitAll()
+                .requestMatchers("/error").permitAll() // 404/500 errors ko dikhane ke liye
+                .requestMatchers("/").permitAll()      // Health check ke liye
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
@@ -68,6 +68,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // ... Baaki code waisa hi rahega (PasswordEncoder, AuthManager etc.) ...
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
