@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-// 🖌️ Icons Components (Updated with Mail Icon)
+// 🖌️ Icons Components
 const Icons = {
   Sun: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>,
   Moon: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>,
@@ -72,7 +72,7 @@ function DashboardPage() {
 
   useEffect(() => {
     fetchNotes();
-    fetchUserProfile(); // 🔥 Load User Data (Email/Mobile)
+    fetchUserProfile(); 
     loadLocalProfilePic();
   }, []);
 
@@ -85,11 +85,11 @@ function DashboardPage() {
 
   // 🔥 Fetch Registered User Details from Backend
   const fetchUserProfile = async () => {
-    const token = sessionStorage.getItem('auth_token');
+    // ✅ FIX: localStorage and 'token'
+    const token = localStorage.getItem('token');
     if (!token) return;
 
     try {
-      // Backend Endpoint we just created
       const response = await axios.get('https://secret-notes-app-pdmd.onrender.com/auth/me', {
         headers: { 'Authorization': token }
       });
@@ -105,10 +105,9 @@ function DashboardPage() {
   };
 
   const loadLocalProfilePic = () => {
-     // Picture is local only (Browser me)
-     const token = sessionStorage.getItem('auth_token');
+     // ✅ FIX: localStorage and 'token'
+     const token = localStorage.getItem('token');
      if(token) {
-        // Just extract username for local storage key
         try {
             const base64Url = token.split(' ')[1]; 
             const user = atob(base64Url).split(':')[0];
@@ -119,8 +118,12 @@ function DashboardPage() {
   };
 
   const fetchNotes = async () => {
-    const token = sessionStorage.getItem('auth_token');
+    // ✅ FIX: localStorage and 'token'
+    const token = localStorage.getItem('token');
+    
+    // 🛑 AB YAHAN REDIRECT NAHI HOGA AGAR TOKEN HAI
     if (!token) { navigate('/'); return; }
+    
     try {
       const response = await axios.get('https://secret-notes-app-pdmd.onrender.com/notes', {
         headers: { 'Authorization': token }
@@ -128,7 +131,8 @@ function DashboardPage() {
       setNotes(response.data);
     } catch (error) { 
         if (error.response && error.response.status === 401) {
-            sessionStorage.removeItem('auth_token');
+            // ✅ FIX: localStorage
+            localStorage.removeItem('token');
             navigate('/');
         }
     }
@@ -158,7 +162,10 @@ function DashboardPage() {
 
   const handleAddNote = async () => {
     if (!newTitle.trim() && !newNote.trim() && !fileInputRef.current?.files[0]) return;
-    const token = sessionStorage.getItem('auth_token');
+    
+    // ✅ FIX: localStorage
+    const token = localStorage.getItem('token');
+    
     const formData = new FormData();
     formData.append('title', newTitle);
     formData.append('content', newNote);
@@ -179,7 +186,9 @@ function DashboardPage() {
   
   const handleDeleteNote = async (e, id) => {
     e.stopPropagation();
-    const token = sessionStorage.getItem('auth_token');
+    // ✅ FIX: localStorage
+    const token = localStorage.getItem('token');
+    
     try {
       await axios.delete(`https://secret-notes-app-pdmd.onrender.com/notes/${id}`, {
         headers: { 'Authorization': token }
@@ -191,7 +200,8 @@ function DashboardPage() {
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem('auth_token');
+    // ✅ FIX: localStorage
+    localStorage.removeItem('token');
     navigate('/', { replace: true });
   };
 
@@ -283,11 +293,11 @@ function DashboardPage() {
           <button onClick={() => setDarkMode(!darkMode)} className="icon-btn">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
           
           <button onClick={() => setShowProfile(!showProfile)} className="icon-btn" style={{border: showProfile ? '2px solid #2ed573' : 'none'}}>
-             {profilePic ? (
-                 <img src={profilePic} alt="u" style={{width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover'}} />
-             ) : (
-                 <Icons.User />
-             )}
+              {profilePic ? (
+                  <img src={profilePic} alt="u" style={{width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover'}} />
+              ) : (
+                  <Icons.User />
+              )}
           </button>
         </div>
       </nav>
